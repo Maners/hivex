@@ -300,10 +300,15 @@ hivex_open (const char *filename, int flags)
       int used;
       seg_len = block_len (h, blkoff, &used);
       if (seg_len <= 4 || (seg_len & 3) != 0) {
-        SET_ERRNO (ENOTSUP,
-                   "%s: block size %" PRIi32 " at 0x%zx, bad registry",
-                   filename, le32toh (block->seg_len), blkoff);
-        goto error;
+        if (is_root) {
+          bad_root_block = 1;
+        } else {
+          DEBUG(2,
+                "%s: block at 0x%zx (page 0x%zx) has invalid size %"
+                PRIi32", skipping\n",
+                filename, blkoff, off, le32toh (block->seg_len));
+          break;
+        }
       }
 
       if (h->msglvl >= 2) {

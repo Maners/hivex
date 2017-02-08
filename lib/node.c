@@ -343,11 +343,10 @@ _hivex_get_children (hive_h *h, hive_node_h node,
    */
   size_t nr_children = _hivex_get_offset_list_length (&children);
   if (nr_subkeys_in_nk != nr_children) {
-    SET_ERRNO (ENOTSUP,
-               "nr_subkeys_in_nk = %zu "
-               "is not equal to number of children read %zu",
-               nr_subkeys_in_nk, nr_children);
-    goto error;
+    DEBUG(2,
+          "nr_subkeys_in_nk = %zu "
+          "is not equal to number of children read %zu",
+          nr_subkeys_in_nk, nr_children);
   }
 
  out:
@@ -408,7 +407,7 @@ _get_children (hive_h *h, hive_node_h blkoff,
       hive_node_h subkey = le32toh (lf->keys[i].offset);
       subkey += 0x1000;
       if (check_child_is_nk_block (h, subkey, flags) == -1)
-        return -1;
+        continue;
       if (_hivex_add_to_offset_list (children, subkey) == -1)
         return -1;
     }
